@@ -85,3 +85,40 @@ ecommerce-fraud-detection/
 ├── README.md
 └── requirements.txt
 ```
+
+
+## Data Processing:
+```
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+
+def load_data(file_path):
+    return pd.read_csv(file_path)
+
+def preprocess_data(df):
+    # Handle missing values
+    df.fillna(method='ffill', inplace=True)
+    
+    # Convert categorical variables to numerical
+    categorical_cols = ['source', 'browser', 'sex', 'country']
+    encoder = OneHotEncoder()
+    encoded_features = encoder.fit_transform(df[categorical_cols])
+    df_encoded = pd.DataFrame(encoded_features.toarray(), columns=encoder.get_feature_names(categorical_cols))
+    
+    df = df.drop(categorical_cols, axis=1)
+    df = pd.concat([df, df_encoded], axis=1)
+    
+    # Convert signup_time and purchase_time to datetime
+    df['signup_time'] = pd.to_datetime(df['signup_time'])
+    df['purchase_time'] = pd.to_datetime(df['purchase_time'])
+    
+    # Feature engineering: time difference between signup and purchase
+    df['signup_purchase_diff'] = (df['purchase_time'] - df['signup_time']).dt.total_seconds()
+    
+    return df
+
+if __name__ == "__main__":
+    data = load_data('data/raw/transactions.csv')
+    processed_data = preprocess_data(data)
+    processed_data.to_csv('data/processed/transactions_processed.csv', index=False)
+```
