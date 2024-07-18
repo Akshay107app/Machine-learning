@@ -1,1 +1,173 @@
+### Fraud Detection Model for E-commerce Transactions
+Project Overview
+This project aims to build a machine learning model to predict the probability that the first transaction of a new user on an e-commerce website is fraudulent. E-commerce websites handle substantial amounts of money, making them targets for fraudulent activities such as using stolen credit cards and money laundering. By accurately predicting fraudulent transactions, we can save the business significant amounts of money and maintain customer trust by minimizing the inconvenience caused by false positives.
 
+Problem Statement
+XYZ is an e-commerce site specializing in wholesale electronics. You have been contracted to develop a model that predicts whether a given transaction is fraudulent or not. Only information about each user’s first transaction on Electronica’s website is available. Incorrect predictions can either lead to financial losses (if fraudulent transactions are not flagged) or inconvenience customers (if valid transactions are wrongly flagged), costing the client $8 per inconvenience.
+
+Data Description
+The dataset contains information about the first transaction of each user, with the following columns:
+
+user_id: Unique identifier for the user.
+signup_time: Time when the user created their account (GMT).
+purchase_time: Time when the user bought the item (GMT).
+purchase_value: Cost of the purchased item (USD).
+device_id: Unique identifier for the device used to make the purchase.
+source: Marketing channel through which the user arrived (ads, SEO, Direct).
+browser: Browser used by the user.
+sex: Gender of the user (Male/Female).
+age: Age of the user.
+ip_address: Numeric IP address of the user.
+country: Country corresponding to the IP address.
+class: Target variable indicating if the transaction was fraudulent (1) or not (0).
+Approach
+** Data Preprocessing: **  Clean the data, handle missing values, and convert categorical variables into numerical ones using techniques such as one-hot encoding.
+** Feature Engineering: ** Create new features that might help the model, such as the time difference between signup_time and purchase_time.
+Model Selection: Choose appropriate machine learning algorithms like Logistic Regression, Random Forest, or Gradient Boosting.
+Model Training: Train the models using the training dataset and perform hyperparameter tuning to optimize performance.
+Model Evaluation: Evaluate the models using appropriate metrics such as accuracy, precision, recall, F1-score, and ROC-AUC.
+Model Deployment: Deploy the best-performing model to predict the probability of fraudulent transactions in real-time.
+GitHub Repository Structure
+css
+```
+ecommerce-fraud-detection/
+│
+├── data/
+│   ├── raw/
+│   │   └── transactions.csv
+│   └── processed/
+│       └── transactions_processed.csv
+│
+├── notebooks/
+│   ├── 01_data_exploration.ipynb
+│   ├── 02_data_preprocessing.ipynb
+│   ├── 03_model_training.ipynb
+│   └── 04_model_evaluation.ipynb
+│
+├── src/
+│   ├── data_preprocessing.py
+│   ├── feature_engineering.py
+│   ├── model_training.py
+│   └── model_evaluation.py
+│
+├── tests/
+│   ├── test_data_preprocessing.py
+│   ├── test_feature_engineering.py
+│   ├── test_model_training.py
+│   └── test_model_evaluation.py
+│
+├── .gitignore
+├── README.md
+└── requirements.txt
+```
+```Code
+data_preprocessing.py
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+
+def load_data(file_path):
+    return pd.read_csv(file_path)
+
+def preprocess_data(df):
+    # Handle missing values
+    df.fillna(method='ffill', inplace=True)
+    
+    # Convert categorical variables to numerical
+    categorical_cols = ['source', 'browser', 'sex', 'country']
+    encoder = OneHotEncoder()
+    encoded_features = encoder.fit_transform(df[categorical_cols])
+    df_encoded = pd.DataFrame(encoded_features.toarray(), columns=encoder.get_feature_names(categorical_cols))
+    
+    df = df.drop(categorical_cols, axis=1)
+    df = pd.concat([df, df_encoded], axis=1)
+    
+    # Convert signup_time and purchase_time to datetime
+    df['signup_time'] = pd.to_datetime(df['signup_time'])
+    df['purchase_time'] = pd.to_datetime(df['purchase_time'])
+    
+    # Feature engineering: time difference between signup and purchase
+    df['signup_purchase_diff'] = (df['purchase_time'] - df['signup_time']).dt.total_seconds()
+    
+    return df
+
+if __name__ == "__main__":
+    data = load_data('data/raw/transactions.csv')
+    processed_data = preprocess_data(data)
+    processed_data.to_csv('data/processed/transactions_processed.csv', index=False)
+```
+### model_training.py
+python
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, roc_auc_score
+
+def load_data(file_path):
+    return pd.read_csv(file_path)
+
+def train_model(df):
+    X = df.drop('class', axis=1)
+    y = df['class']
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
+    
+    y_pred = model.predict(X_test)
+    y_prob = model.predict_proba(X_test)[:, 1]
+    
+    print(classification_report(y_test, y_pred))
+    print(f'ROC AUC Score: {roc_auc_score(y_test, y_prob)}')
+    
+    return model
+
+if __name__ == "__main__":
+    data = load_data('data/processed/transactions_processed.csv')
+    model = train_model(data)
+```
+## README.md
+
+# E-commerce Fraud Detection
+
+This project aims to build a machine learning model that predicts whether the first transaction of a new user on an e-commerce website is fraudulent. The dataset contains information about each user's first transaction on the XYZ e-commerce platform.
+
+## Project Structure
+- **data/**: Contains raw and processed data files.
+- **notebooks/**: Jupyter notebooks for data exploration, preprocessing, model training, and evaluation.
+- **src/**: Source code for data preprocessing, feature engineering, model training, and evaluation.
+- **tests/**: Unit tests for the source code modules.
+
+## Getting Started
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-username/ecommerce-fraud-detection.git
+```
+Install the required packages:
+```
+pip install -r requirements.txt
+```
+Run the data preprocessing script:
+```
+python src/data_preprocessing.py
+```
+Train the model:
+```
+python src/model_training.py
+```
+### Data Description
+The dataset contains the following columns:
+
+user_id: Unique identifier for the user.
+signup_time: Time when the user created their account (GMT).
+purchase_time: Time when the user bought the item (GMT).
+purchase_value: Cost of the purchased item (USD).
+device_id: Unique identifier for the device used to make the purchase.
+source: Marketing channel through which the user arrived (ads, SEO, Direct).
+browser: Browser used by the user.
+sex: Gender of the user (Male/Female).
+age: Age of the user.
+ip_address: Numeric IP address of the user.
+country: Country corresponding to the IP address.
+class: Target variable indicating if the transaction was fraudulent (1) or not (0).
