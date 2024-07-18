@@ -17,3 +17,71 @@ Healthcare: Predictive analytics for disease diagnosis and personalized treatmen
 Finance: Fraud detection, algorithmic trading, and credit scoring.
 Marketing: Customer segmentation, recommendation systems, and sentiment analysis.
 Transportation: Autonomous driving, traffic prediction, and route optimization.
+
+### Project1
+# Fraud Detection in E-commerce Transactions
+
+## Problem Statement
+
+E-commerce websites often transact huge amounts of money. Whenever a huge amount of money is moved, there is a high risk of users performing fraudulent activities, such as using stolen credit cards or laundering money.
+
+XYZ is an e-commerce site that sells wholesale electronics. You have been contracted to build a model that predicts whether a given transaction is fraudulent or not. You only have information about each user’s first transaction on XYZ's website. If you fail to identify a fraudulent transaction, XYZ loses money equivalent to the price of the fraudulently purchased product. If you incorrectly flag a real transaction as fraudulent, it inconveniences XYZ customers whose valid transactions are flagged—a cost your client values at $8.
+
+## Data Description
+
+Information about the first transaction of each user is provided. The dataset contains the following columns:
+
+- `user_id`: Id of the user. Unique by user.
+- `signup_time`: The time when the user created their account (GMT time).
+- `purchase_time`: The time when the user bought the item (GMT time).
+- `purchase_value`: The cost of the item purchased (USD).
+- `device_id`: The device id. Assumed to be unique by device. Two transactions with the same device ID indicate the same physical device was used to buy.
+- `source`: User marketing channel: ads, SEO, Direct (i.e., came to the site by directly typing the site address on the browser).
+- `browser`: The browser used by the user.
+- `sex`: Male/Female.
+- `age`: User age.
+- `ip_address`: User numeric IP address.
+- `class`: The target variable, indicating whether the activity was fraudulent (1) or not (0).
+- `country`: Country of the IP address.
+
+## Objective
+
+Build a machine learning model that predicts the probability that the first transaction of a new user on XYZ's website is fraudulent.
+
+## Cost Considerations
+
+- False Negative (Failing to identify a fraudulent transaction): XYZ loses money equivalent to the price of the fraudulently purchased product.
+- False Positive (Incorrectly flagging a valid transaction as fraudulent): Inconvenience to XYZ customers, valued at $8 per incorrect flag.
+
+## Project Structure
+```
+ecommerce-fraud-detection/
+│
+├── data/
+│   ├── raw/
+│   │   └── transactions.csv
+│   └── processed/
+│       └── transactions_processed.csv
+│
+├── notebooks/
+│   ├── 01_data_exploration.ipynb
+│   ├── 02_data_preprocessing.ipynb
+│   ├── 03_model_training.ipynb
+│   └── 04_model_evaluation.ipynb
+│
+├── src/
+│   ├── data_preprocessing.py
+│   ├── feature_engineering.py
+│   ├── model_training.py
+│   └── model_evaluation.py
+│
+├── tests/
+│   ├── test_data_preprocessing.py
+│   ├── test_feature_engineering.py
+│   ├── test_model_training.py
+│   └── test_model_evaluation.py
+│
+├── .gitignore
+├── README.md
+└── requirements.txt
+```
